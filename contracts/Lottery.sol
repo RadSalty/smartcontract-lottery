@@ -8,6 +8,7 @@ contract Lottery {
     using SafeMathChainlink for uint256; //inherits safemath for uint256 so functions do not have to be uses explicitly
     
     address public owner; // address of the owner
+    address payable[] public players;
 
     // constructor initialises as soon as the contract is deployed
     constructor() public {
@@ -15,8 +16,9 @@ contract Lottery {
     }
 
     // Function to enter the lottery
-    function enter() public {
-
+    function enter() public payable {
+        // $50 min buy in
+        players.push(msg.sender);
     }
     // Function to get the required entrance fee in USD
     function getEntranceFee public {
