@@ -2,8 +2,11 @@
 
 pragma solidity ^0.6.6;
 
-contract Lottery {
+import "@chainlink/contracts/src/v0.6/vendor/SafeMathChainlink.sol"; // uses the brownie-config file to define where @chainlink is
 
+contract Lottery {
+    using SafeMathChainlink for uint256; //inherits safemath for uint256 so functions do not have to be uses explicitly
+    
     address public owner; // address of the owner
 
     // constructor initialises as soon as the contract is deployed
@@ -26,13 +29,14 @@ contract Lottery {
         _;
     }
 
+    // onlyOwner functions below
     // an owner only requirement to start the lottery
     function startLottery() public onlyOwner {
 
     }
 
     // an owner only function to end the lottery
-    function endLottery() public onlyOwner {
+    function endLottery() public payable onlyOwner {
 
     }
 
