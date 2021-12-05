@@ -21,7 +21,7 @@ contract Lottery {
         players.push(msg.sender);
     }
     // Function to get the required entrance fee in USD
-    function getEntranceFee public {
+    function getEntranceFee public view return(uint256) {
 
     }
 
