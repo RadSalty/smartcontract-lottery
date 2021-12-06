@@ -9,12 +9,14 @@ import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol"; // 
 contract Lottery {
     using SafeMathChainlink for uint256; //inherits safemath for uint256 so functions do not have to be uses explicitly
     
+    uint256 public usdEntryFee;
     address public owner; // address of the owner
     address payable[] public players;
     AggregatorV3Interface public priceFeed; // sets the chainlink interface to pricefeed
 
     // constructor initialises as soon as the contract is deployed
     constructor() public {
+        usdEntryFee = 50 * (10**18);
         priceFeed = AggregatorV3Interface(_priceFeed); // sets the priceFeed to the address set in the deploy.py, defined in the brownie-config file
         owner = msg.sender; // sets the deploying wallet as the owner
     }
