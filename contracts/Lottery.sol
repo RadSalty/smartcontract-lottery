@@ -5,10 +5,9 @@ pragma solidity ^0.6.6;
 import "@chainlink/contracts/src/v0.6/vendor/SafeMathChainlink.sol"; // uses the brownie-config file to define where @chainlink is
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol"; // uses the brownie-config file to define where @chainlink is
 
-
 contract Lottery {
     using SafeMathChainlink for uint256; //inherits safemath for uint256 so functions do not have to be uses explicitly
-    
+
     uint256 public usdEntryFee;
     address public owner; // address of the owner
     address payable[] public players;
@@ -24,13 +23,13 @@ contract Lottery {
     // Function to enter the lottery
     function enter() public payable {
         // $50 min buy in
-        getEntranceFee()
+        getEntranceFee();
         players.push(msg.sender);
     }
 
     // Function to get the required entrance fee in USD
-    function getEntranceFee public view return(uint256) {
-        (, int256 answer, , , ) = ethUsdPriceFeed.latestRoundData(); // calls the AggregatorV3Interface latestRoundData function, which returns 5 variablesm only need the second variable
+    function getEntranceFee() public view returns (uint256) {
+        (, int256 price, , , ) = ethUsdPriceFeed.latestRoundData(); // calls the AggregatorV3Interface latestRoundData function, which returns 5 variablesm only need the second variable
         uint256 adjustedPrice = uint256(price) * (10**10); // converts int256 to uint256
         uint256 costToEnter = (usdEntryFee * (10**18)) / adjustedPrice;
         return costToEnter;
@@ -44,17 +43,13 @@ contract Lottery {
 
     // onlyOwner functions below
     // an owner only requirement to start the lottery
-    function startLottery() public onlyOwner {
-
-    }
+    function startLottery() public onlyOwner {}
 
     // an owner only function to end the lottery
-    function endLottery() public payable onlyOwner {
-
-    }
+    function endLottery() public payable onlyOwner {}
 
     // Function to update the entry fee minimum
     function updateEntryFee(uint256 _usdEntryFee) public onlyOwner {
-        usdEntryFee = _usdEntryFee * (10**18)
+        usdEntryFee = _usdEntryFee * (10**18);
     }
 }
