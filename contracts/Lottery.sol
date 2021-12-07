@@ -16,7 +16,7 @@ contract Lottery {
 
     // constructor initialises as soon as the contract is deployed
     constructor() public {
-        usdEntryFee = 50 * (10**18);
+        usdEntryFee = 50 * (10**18); // sets the entry fee to $50USD
         priceFeed = AggregatorV3Interface(_priceFeed); // sets the priceFeed to the address set in the deploy.py, defined in the brownie-config file
         owner = msg.sender; // sets the deploying wallet as the owner
     }
@@ -30,7 +30,7 @@ contract Lottery {
 
     // Function to get the required entrance fee in USD
     function getEntranceFee public view return(uint256) {
-
+        
     }
 
     // creates modifier for owner only functions
@@ -50,4 +50,8 @@ contract Lottery {
 
     }
 
+    // Function to update the entry fee minimum
+    function updateEntryFee(uint256 _usdEntryFee) public onlyOwner {
+        usdEntryFee = _usdEntryFee * (10**18)
+    }
 }
