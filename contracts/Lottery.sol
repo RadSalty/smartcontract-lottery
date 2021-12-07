@@ -12,18 +12,26 @@ contract Lottery {
     address public owner; // address of the owner
     address payable[] public players;
     AggregatorV3Interface internal ethUsdPriceFeed; // sets the chainlink interface to ethUsdPriceFeed
+    enum LOTTERY_STATE {
+        OPEN, 
+        CLOSED, 
+        CALCULATING_WINNER
+    } // 0 = Open, 1=Closed, 2=Calculating winner
+    LOTTERY_STATE public lottery_state
 
     // constructor initialises as soon as the contract is deployed
     constructor(address _ethUsdPriceFeed) public {
         usdEntryFee = 50 * (10**18); // sets the entry fee to $50USD
         ethUsdPriceFeed = AggregatorV3Interface(_ethUsdPriceFeed); // sets the priceFeed to the address set in the deploy.py, defined in the brownie-config file
         owner = msg.sender; // sets the deploying wallet as the owner
+        lottery_state = LOTTERY_STATE.CLOSED;
     }
 
     // Function to enter the lottery
     function enter() public payable {
         // $50 min buy in
-        getEntranceFee();
+        require(lottery_state == LOTTERY_STATE.OPEN);
+        require(msg.value >= getEntranceFee(), "Not enough ETH");
         players.push(msg.sender);
     }
 
@@ -35,7 +43,7 @@ contract Lottery {
         return costToEnter;
     }
 
-    // creates modifier for owner only functions
+    // creates modifier for owner only functions ****update this to openzepplin version
     modifier onlyOwner() {
         require(msg.sender == owner);
         _;
@@ -43,7 +51,10 @@ contract Lottery {
 
     // onlyOwner functions below
     // an owner only requirement to start the lottery
-    function startLottery() public onlyOwner {}
+    function startLottery() public onlyOwner {
+        require(lottery_state == LOTTERY_STATE.CLOSED, "Lottery is already open");
+        lottery_state = LOTTERY_STATE.OPEN;
+    }
 
     // an owner only function to end the lottery
     function endLottery() public payable onlyOwner {}
