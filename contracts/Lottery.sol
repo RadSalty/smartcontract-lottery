@@ -12,12 +12,12 @@ contract Lottery {
     uint256 public usdEntryFee;
     address public owner; // address of the owner
     address payable[] public players;
-    AggregatorV3Interface public priceFeed; // sets the chainlink interface to pricefeed
+    AggregatorV3Interface internal ethUsdPriceFeed; // sets the chainlink interface to ethUsdPriceFeed
 
     // constructor initialises as soon as the contract is deployed
-    constructor() public {
+    constructor(address _ethUsdPriceFeed) public {
         usdEntryFee = 50 * (10**18); // sets the entry fee to $50USD
-        priceFeed = AggregatorV3Interface(_priceFeed); // sets the priceFeed to the address set in the deploy.py, defined in the brownie-config file
+        ethUsdPriceFeed = AggregatorV3Interface(_ethUsdPriceFeed); // sets the priceFeed to the address set in the deploy.py, defined in the brownie-config file
         owner = msg.sender; // sets the deploying wallet as the owner
     }
 
@@ -30,7 +30,10 @@ contract Lottery {
 
     // Function to get the required entrance fee in USD
     function getEntranceFee public view return(uint256) {
-        
+        (, int256 answer, , , ) = ethUsdPriceFeed.latestRoundData(); // calls the AggregatorV3Interface latestRoundData function, which returns 5 variablesm only need the second variable
+        uint256 adjustedPrice = uint256(price) * (10**10); // converts int256 to uint256
+        uint256 costToEnter = (usdEntryFee * (10**18)) / adjustedPrice;
+        return costToEnter;
     }
 
     // creates modifier for owner only functions
