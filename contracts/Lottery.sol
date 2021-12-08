@@ -4,8 +4,9 @@ pragma solidity ^0.6.6;
 
 import "@chainlink/contracts/src/v0.6/vendor/SafeMathChainlink.sol"; // uses the brownie-config file to define where @chainlink is
 import "@chainlink/contracts/src/v0.6/interfaces/AggregatorV3Interface.sol"; // uses the brownie-config file to define where @chainlink is
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Lottery {
+contract Lottery is Ownable {
     using SafeMathChainlink for uint256; //inherits safemath for uint256 so functions do not have to be uses explicitly
 
     uint256 public usdEntryFee;
@@ -13,11 +14,11 @@ contract Lottery {
     address payable[] public players;
     AggregatorV3Interface internal ethUsdPriceFeed; // sets the chainlink interface to ethUsdPriceFeed
     enum LOTTERY_STATE {
-        OPEN, 
-        CLOSED, 
+        OPEN,
+        CLOSED,
         CALCULATING_WINNER
     } // 0 = Open, 1=Closed, 2=Calculating winner
-    LOTTERY_STATE public lottery_state
+    LOTTERY_STATE public lottery_state;
 
     // constructor initialises as soon as the contract is deployed
     constructor(address _ethUsdPriceFeed) public {
@@ -43,16 +44,14 @@ contract Lottery {
         return costToEnter;
     }
 
-    // creates modifier for owner only functions ****update this to openzepplin version
-    modifier onlyOwner() {
-        require(msg.sender == owner);
-        _;
-    }
-
     // onlyOwner functions below
+
     // an owner only requirement to start the lottery
     function startLottery() public onlyOwner {
-        require(lottery_state == LOTTERY_STATE.CLOSED, "Lottery is already open");
+        require(
+            lottery_state == LOTTERY_STATE.CLOSED,
+            "Lottery is already open"
+        );
         lottery_state = LOTTERY_STATE.OPEN;
     }
 
