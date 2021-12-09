@@ -1,5 +1,7 @@
-from scripts.scripts import get_account, get_contract
+from brownie.network import account
+from scripts.scripts import get_account, get_contract, fund_with_link
 from brownie import Lottery, network, config
+import time
 
 
 def deploy_lottery():
@@ -14,7 +16,40 @@ def deploy_lottery():
         publish_source=config["networks"][network.show_active()].get("verify", False),
     )
     print("Deployed Lottery!")
+    return lottery
+
+
+def start_lottery():
+    account = get_account()
+    lottery = Lottery[-1]
+    starting_tx = lottery.startLottery({"from": account})
+    starting_tx.wait(1)
+    print("Lottery is started!")
+
+
+def enter_lottery():
+    account = get_account()
+    lottery = Lottery[-1]
+    value = lottery.getEntranceFee() + 100
+    tx = lottery.enter({"from": account, "value": value})
+    tx.wait(1)
+    print("you enetered the lottery!")
+
+
+def end_lottery():
+    account = get_account()
+    lottery = Lottery[-1]
+    # Fund contract first
+    tx = fund_with_link(lottery.address)
+    tx.wait(1)
+    ending_tx = lottery.endLottery({"from": account})
+    ending_tx.wait(1)
+    time.sleep(60)
+    print(f"Winner is {lottery.recentWinner()}")
 
 
 def main():
     deploy_lottery()
+    start_lottery()
+    enter_lottery()
+    end_lottery()
