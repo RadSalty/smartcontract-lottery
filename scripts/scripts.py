@@ -1,4 +1,12 @@
-from brownie import network, config, accounts, MockV3Aggregator
+from brownie import (
+    network,
+    config,
+    accounts,
+    MockV3Aggregator,
+    Contract,
+    VRFCoordinatorMock,
+    LinkToken,
+)
 from brownie.network import account, contract
 from web3 import Web3
 
@@ -21,7 +29,14 @@ def get_account(index=None, id=None):
     return accounts.add(config["wallets"]["from_key"])
 
 
-contract_to_mock = {"eth_usd_price_feed": MockV3Aggregator}
+contract_to_mock = {
+    "eth_usd_price_feed": MockV3Aggregator,
+    "vrf_coodinator": VRFCoordinatorMock,
+    "link_token": LinkToken,
+}
+
+DECIMALS = 8
+INITIAL_VALUE = 200000000000
 
 
 def get_contract(contract_name):
@@ -38,8 +53,18 @@ def get_contract(contract_name):
     if network.show_active() in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
         if len(contract_type) <= 0:
             deploy_mocks()
+        contract = contract_type[-1]
+    else:
+        contract_address = config["networks"][network.show_active()][contract_name]
+        contract = Contract.from_abi(
+            contract_type._name, contract_address, contract_type.abi
+        )
+    return contract
 
 
 def deploy_mocks(decimals=DECIMALS, initial_value=INITIAL_VALUE):
     account = get_account()
-    mock_price_feed = MockV3Aggregator.deploy()
+    mock_price_feed = MockV3Aggregator.deploy(
+        decimals, initial_value, {"from": account}
+    )
+    print("Deployed!")
